@@ -14,7 +14,8 @@
   const off = p => p.old ? Math.round((1 - p.price / p.old) * 100) : 0;
   const colorOf = k => D.colors[k] || { hex: '#ccc', ar: k, en: k };
   const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const CAT_ICON = { handbags: 'top', shoulder: 'hobo', crossbody: 'crossbody', totes: 'tote', evening: 'clutch', wallets: 'wallet' };
+  const CAT_ICON = { handbags: 'top', shoulder: 'hobo', buckets: 'bucket', crossbody: 'crossbody', totes: 'tote', evening: 'clutch', wallets: 'wallet' };
+  const OFFER = D.offer || { before: 0, now: 0, percent: 0 };
   const BADGE = { best: ['الأكثر طلباً', 'b-best'], new: ['جديد', 'b-new'], limited: ['إصدار محدود', 'b-limited'] };
   const nounOf = p => (p.cat === 'wallets' ? '' : 'حقيبة ');
 
@@ -155,10 +156,10 @@
   function home() {
     const H = D.hero.map(id => P[id]);
     const h0 = H[0];
-    const trending = ['lina', 'mira', 'rahaf', 'sara', 'hala', 'noor', 'layan', 'joud'].map(id => P[id]);
-    const iconic = D.products.filter(p => p.badge === 'best' || p.badge === 'limited');
-    const tick = [['sparkle', 'فخامة بسعر معقول'], ['shield', 'دفع آمن بخيارات متعددة'], ['truck', 'توصيل لجميع مدن المملكة'], ['gift', 'تغليف هدية مجاني'],
-      ['chat', 'خدمة عميلات عبر واتساب'], ['return', `استرجاع سهل خلال ${C.returnsDays} يوماً`], ['tag', 'تشكيلات جديدة كل موسم']];
+    const HM = D.home;
+    const story = COLL[HM.edit.story];
+    const tick = [['tag', `خصم ${OFFER.percent}% على جميع الحقائب`], ['sparkle', 'جودة ممتازة بسعر مناسب'], ['shield', 'دفع آمن بخيارات متعددة'], ['truck', 'توصيل لجميع مدن المملكة'],
+      ['gift', 'تغليف أنيق لكل طلب'], ['chat', 'خدمة عميلات عبر واتساب'], ['return', `استرجاع سهل خلال ${C.returnsDays} يوماً`]];
     const tickHTML = tick.map(t => `<span>${ic(t[0])}${t[1]}</span>`).join('');
     const html = `
     <div class="wrap">
@@ -168,7 +169,7 @@
       </div>
       <section class="hero" id="hero" aria-roledescription="عرض متحرك">
         <div class="hero-copy" id="heroCopy">
-          <span class="pill">${ic('sparkle')}مختارات فاخرة بسعر معقول</span>
+          <span class="pill">${ic('tag')}خصم ${OFFER.percent}% على جميع الحقائب</span>
           ${heroCopy(h0)}
           <div class="hero-ctrl">
             <button type="button" class="round" data-act="hero" data-d="-1" aria-label="الشريحة السابقة">${ic('chevron', 'flip')}</button>
@@ -184,21 +185,22 @@
       <div class="perk"><i>${ic('truck')}</i><div><b>شحن مجاني</b><span>للطلبات فوق ${C.freeShippingOver} ${C.currency}</span></div></div>
       <div class="perk"><i>${ic('card')}</i><div><b>دفع آمن</b><span>مدى، Apple Pay، تابي، تمارا</span></div></div>
       <div class="perk"><i>${ic('return')}</i><div><b>استرجاع سهل</b><span>خلال ${C.returnsDays} يوماً من الاستلام</span></div></div>
-      <div class="perk"><i>${ic('gift')}</i><div><b>تغليف هدية</b><span>مجاناً مع كل طلب</span></div></div>
+      <div class="perk"><i>${ic('gift')}</i><div><b>تغليف أنيق</b><span>لكل طلب، وبطاقة إهداء عند الطلب</span></div></div>
     </div></div>
+    ${noticeBand()}
     <div class="band">
-      ${carousel('الأكثر رواجاً', 'قطع مختارة بتشطيبات فاخرة وألوان هادئة', trending)}
-      <div class="wrap" style="padding-bottom:64px">${feature(P.rahaf)}</div>
+      ${carousel('تشكيلة زوفا', `كل الحقائب بـ ${money(OFFER.now)} بدلاً من ${money(OFFER.before)}`, D.products)}
+      <div class="wrap" style="padding-bottom:64px">${feature(P[HM.feature])}</div>
     </div>
     <section class="sec"><div class="wrap">
-      ${secHead('اختيارات زوفا', 'قطع نحبّها ونرشّحها لكِ من المجموعة الأولى')}
+      ${secHead('اختيارات زوفا', 'قطع نحبّها ونرشّحها لكِ')}
       <div class="edit">
         <div class="edit-col">
-          ${feature(P.mira, { img: P.mira.colors[0].img })}
-          <a class="story" href="#c-evening"><img src="img/c/evening.webp" alt="" loading="lazy"><span class="la" lang="en">Soft Evenings</span><h3>سهرات ناعمة</h3><p>كلتشات وحقائب سهرة بلمعة هادئة ولؤلؤ يليق بمناسباتكِ.</p><span class="btn btn-light btn-sm" style="align-self:flex-start">تسوّقي المجموعة${ic('arrow')}</span></a>
+          ${feature(P[HM.edit.feature], { img: P[HM.edit.feature].colors[0].img })}
+          <a class="story" href="#c-${story.id}"><img src="${story.img}" alt="" loading="lazy"><span class="la" lang="en">${esc(story.en)}</span><h3>${esc(story.ar)}</h3><p>${esc(story.sub)}</p><span class="btn btn-light btn-sm" style="align-self:flex-start">تسوّقي المجموعة${ic('arrow')}</span></a>
         </div>
-        <div class="edit-col">${card(P.hala)}${card(P.noor)}</div>
-        <div class="edit-col">${card(P.joud)}${card(P.farah)}</div>
+        <div class="edit-col">${HM.edit.cards.slice(0, 2).map(id => card(P[id])).join('')}</div>
+        <div class="edit-col">${HM.edit.cards.slice(2, 4).map(id => card(P[id])).join('')}</div>
       </div>
     </div></section>
     <section class="sec" style="padding-top:8px"><div class="wrap">
@@ -210,35 +212,35 @@
       <div class="sec-h center"><div><h2>المجموعات</h2><p>مجموعات مختارة لكل يوم ولكل مناسبة</p></div></div>
       <div class="cols">${D.collections.map(c => colCard(c)).join('')}</div>
     </div></section>
-    ${carousel('عروض لا تُفوَّت', 'تخفيضات مختارة على قطع محبوبة', onSale())}
-    <section class="sec-tight"><div class="wrap">
+    <section class="sec-tight" style="padding-top:56px"><div class="wrap">
       <div class="flash">
         <div>
           <span class="glass">${ic('clock')}${esc(C.saleTitle)} — لفترة محدودة</span>
-          <h2>خصومات تصل إلى ${maxOff()}%</h2>
-          <p>على قطع مختارة من حقائب اليد والكتف والسهرة، والكميات محدودة.</p>
+          <h2>خصم ${OFFER.percent}% على جميع الحقائب</h2>
+          <p>كل الحقائب بـ ${money(OFFER.now)} بدلاً من ${money(OFFER.before)}، والكميات محدودة.</p>
           <div class="cta-row" style="margin-top:0">
             <a class="btn btn-light" href="#deals">تسوّقي العروض${ic('arrow')}</a>
             ${countdownHTML('cd1')}
           </div>
         </div>
-        <div class="flash-art" aria-hidden="true"><div class="ft"><img src="${P.rahaf.colors[0].img}" alt=""></div><div class="ft"><img src="${P.mira.colors[0].img}" alt=""></div></div>
+        <div class="flash-art" aria-hidden="true">${HM.flash.map(id => `<div class="ft"><img src="${P[id].colors[0].img}" alt=""></div>`).join('')}</div>
       </div>
     </div></section>
-    ${carousel('وصل حديثاً', 'أحدث القطع في متجرنا', byAdded(), 'compact')}
-    ${carousel('سهرات ناعمة', 'لمعة هادئة لكل مناسبة', COLL.evening.items.map(id => P[id]), '', 'Soft Evenings', 'sec band')}
-    ${carousel('هدايا تُفرِح', 'أفكار هدايا بأقل من 300 ر.س', COLL.gifts.items.map(id => P[id]), '', 'Little Gifts')}
-    ${carousel('أيقونات زوفا', 'القطع التي تعرّف بأسلوبنا', iconic, 'large', '', 'sec band')}
     <section class="sec"><div class="wrap">
       <div class="sec-h center"><div><h2>وعدنا لكِ</h2><p>ما نلتزم به في كل طلب</p></div></div>
       <div class="promise">
-        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>نفحص كل حقيبة قطعةً قطعة قبل شحنها، وإن لم تكن كما توقعتِ فالاسترجاع سهل خلال ${C.returnsDays} يوماً.</p><footer><i>${ic('shield')}</i><div><b>ضمان الجودة</b><span>فريق زوفا</span></div></footer></article>
-        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>يصلكِ طلبكِ في علبة زوفا الوردية مع كيس حفظ قطني وبطاقة شكر، وإن كان هدية نضيف بطاقة إهداء بلا فاتورة.</p><footer><i>${ic('gift')}</i><div><b>تغليف يليق بكِ</b><span>فريق التغليف</span></div></footer></article>
-        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>نساعدكِ في اختيار المقاس واللون المناسب، ونرد على رسائلكِ عبر واتساب خلال ساعات العمل.</p><footer><i>${ic('chat')}</i><div><b>نسمعكِ دائماً</b><span>خدمة العميلات</span></div></footer></article>
+        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>نفحص كل حقيبة قبل شحنها، وإن لم تكن كما توقعتِ فالاسترجاع سهل خلال ${C.returnsDays} يوماً.</p><footer><i>${ic('shield')}</i><div><b>ضمان الجودة</b><span>فريق زوفا</span></div></footer></article>
+        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>نغلّف طلبكِ بعناية، وإن كان هدية نضيف بطاقة إهداء بلا فاتورة داخل الطلب.</p><footer><i>${ic('gift')}</i><div><b>تغليف يليق بكِ</b><span>فريق التغليف</span></div></footer></article>
+        <article class="pcard"><div class="q" aria-hidden="true">”</div><p>نساعدكِ في اختيار الحقيبة واللون المناسب، ونرد على رسائلكِ عبر واتساب خلال ساعات العمل.</p><footer><i>${ic('chat')}</i><div><b>نسمعكِ دائماً</b><span>خدمة العميلات</span></div></footer></article>
       </div>
     </div></section>`;
     return { html, title: '', nav: 'home', mount: mountHome };
   }
+  const noticeBand = () => `<section class="sec-tight notice-sec"><div class="wrap"><div class="notice-band">
+      <div class="nb"><i>${ic('tag')}</i><div><b>خصم ${OFFER.percent}% على جميع الحقائب</b><span>كانت <s class="num">${money(OFFER.before)}</s> والآن <b class="num">${money(OFFER.now)}</b> فقط، لفترة محدودة.</span></div></div>
+      <div class="nb"><i>${ic('shield')}</i><div><b>جودة ممتازة بسعر مناسب</b><span>تصاميم عصرية مختارة بعناية، وحقائبنا غير تابعة لأي ماركة أو دار أزياء عالمية.</span></div></div>
+      <a class="btn btn-primary" href="#shop">تسوّقي الآن${ic('arrow')}</a>
+    </div></div></section>`;
   function heroCopy(p) {
     return `<p class="eyebrow">${esc(CAT[p.cat])} · ${esc(p.badge && BADGE[p.badge] ? BADGE[p.badge][0] : p.typeAr)}</p>
       <h1>${esc(nounOf(p) + p.ar)}</h1>
@@ -273,13 +275,16 @@
     if (preset && CAT[preset]) st.cat = preset;
     if (preset && QUICK[preset]) { st.quick = preset; if (preset === 'new') st.sort = 'new'; }
     const usedColors = [...new Set(D.products.flatMap(p => p.colors.map(c => c.key)))].filter(k => !/satin/.test(k));
+    // one price for the whole catalogue: price filter and price sorts add nothing, so hide them
+    const oneP = new Set(D.products.map(p => p.price)).size < 2;
+    const sorts = oneP ? SORT.filter(s => !['low', 'high', 'off'].includes(s[0])) : SORT;
     const html = `<div class="wrap">
       <header class="phead"><h1>المتجر<span class="la" lang="en">The Shop</span></h1><p>كل تشكيلة زوفا في مكان واحد</p></header>
       <div class="fbar" role="search">
         <label class="fsearch">${ic('search')}<span class="sr">ابحثي في المتجر</span><input id="fq" type="search" placeholder="ابحثي باسم الحقيبة أو اللون…" autocomplete="off"></label>
         <div class="pills" id="fcat">${[['all', 'الكل'], ...D.categories.map(c => [c.id, c.ar])].map(([k, v]) => `<button type="button" class="pbtn${st.cat === k ? ' on' : ''}" data-cat="${k}">${v}</button>`).join('')}</div>
-        <div class="sel"><label class="sr" for="fprice">السعر</label><select id="fprice">${PRICE.map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>${ic('chevron')}</div>
-        <div class="sel"><label class="sr" for="fsort">الترتيب</label><select id="fsort">${SORT.map(([k, v]) => `<option value="${k}"${st.sort === k ? ' selected' : ''}>${v}</option>`).join('')}</select>${ic('chevron')}</div>
+        ${oneP ? '' : `<div class="sel"><label class="sr" for="fprice">السعر</label><select id="fprice">${PRICE.map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>${ic('chevron')}</div>`}
+        <div class="sel"><label class="sr" for="fsort">الترتيب</label><select id="fsort">${sorts.map(([k, v]) => `<option value="${k}"${st.sort === k ? ' selected' : ''}>${v}</option>`).join('')}</select>${ic('chevron')}</div>
         <div class="view" role="group" aria-label="طريقة العرض"><button type="button" data-view="3" aria-label="ثلاثة أعمدة">${ic('grid4')}</button><button type="button" data-view="4" aria-label="أربعة أعمدة">${ic('grid9')}</button></div>
       </div>
       <div class="cfilter" id="fcolor"><span>اللون:</span>${usedColors.map(k => `<button type="button" class="cdot" data-color="${k}" style="background:${colorOf(k).hex}" aria-label="${esc(colorOf(k).ar)}" title="${esc(colorOf(k).ar)}"></button>`).join('')}</div>
@@ -322,11 +327,11 @@
       let tmr;
       $('#fq').addEventListener('input', e => { clearTimeout(tmr); tmr = setTimeout(() => { st.q = e.target.value.trim(); apply(); }, 160); });
       $('#fcat').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) { st.cat = b.dataset.cat; apply(); } });
-      $('#fprice').addEventListener('change', e => { st.price = e.target.value; apply(); });
+      if ($('#fprice')) $('#fprice').addEventListener('change', e => { st.price = e.target.value; apply(); });
       $('#fsort').addEventListener('change', e => { st.sort = e.target.value; apply(); });
       $('#fcolor').addEventListener('click', e => { const b = e.target.closest('[data-color]'); if (b) { st.color = st.color === b.dataset.color ? '' : b.dataset.color; apply(); } });
       $('.view').addEventListener('click', e => { const b = e.target.closest('[data-view]'); if (b) { S.view = +b.dataset.view; LS.set('view', S.view); apply(); } });
-      $('#fgrid').addEventListener('click', e => { if (e.target.closest('#freset')) { Object.assign(st, { q: '', cat: 'all', price: 'all', color: '', quick: '' }); $('#fq').value = ''; $('#fprice').value = 'all'; apply(); } });
+      $('#fgrid').addEventListener('click', e => { if (e.target.closest('#freset')) { Object.assign(st, { q: '', cat: 'all', price: 'all', color: '', quick: '' }); $('#fq').value = ''; if ($('#fprice')) $('#fprice').value = 'all'; apply(); } });
       $('#fquick').addEventListener('click', e => { if (e.target.closest('[data-clear-quick]')) { st.quick = ''; apply(); } });
       apply();
     }
@@ -362,14 +367,13 @@
 
   /* ---------- deals */
   function deals() {
-    const list = onSale(); const top = list[0];
+    const list = onSale(); const top = P[D.home.feature] || list[0];
     const html = `<div class="wrap">
-      <header class="phead"><span class="redpill">${ic('clock')}عروض لفترة محدودة</span><h1 style="margin-top:12px">عروض زوفا<span class="la" lang="en">The Sale</span></h1><p>قطع محبوبة بأسعار أجمل، حتى نفاد الكمية</p></header>
+      <header class="phead"><span class="redpill">${ic('clock')}عرض لفترة محدودة</span><h1 style="margin-top:12px">عروض زوفا<span class="la" lang="en">The Sale</span></h1><p>خصم ${OFFER.percent}% على جميع الحقائب: ${money(OFFER.now)} بدلاً من ${money(OFFER.before)}</p></header>
       <div class="deal-hero"><div class="l"><i>${ic('tag')}</i><div><h2>${esc(C.saleTitle)}</h2><p>${saleLive() ? 'ينتهي العرض خلال' : 'تابعي عروضنا القادمة'}</p></div></div>${countdownHTML('cd2')}</div>
       ${feature(top)}
     </div>
-    ${carousel('أكبر التخفيضات', 'مرتبة من الأعلى خصماً', list)}
-    <section class="sec" style="padding-top:0"><div class="wrap">${secHead('كل العروض', `${list.length} قطع مخفّضة`)}<div class="grid">${list.map(p => card(p)).join('')}</div></div></section>`;
+    <section class="sec"><div class="wrap">${secHead('كل الحقائب المخفّضة', `${list.length} ${list.length > 2 && list.length < 11 ? 'قطع' : 'قطعة'} بسعر ${money(OFFER.now)}`)}<div class="grid">${list.map(p => card(p)).join('')}</div></div></section>`;
     return { html, title: 'العروض', nav: 'deals', mount: () => startCountdown('#cd2') };
   }
 
@@ -380,36 +384,27 @@
       <section class="about-hero">
         <div><span class="pill">${ic('sparkle')}حكاية زوفا</span>
           <h1 style="margin-top:18px">حقائب تُشبهكِ<br><em>بفخامة ناعمة</em></h1>
-          <p>زوفا متجر إلكتروني للحقائب النسائية في المملكة، وُلد من فكرة بسيطة: أن تحصل كل امرأة على حقيبة أنيقة ومتقنة الصنع بسعر معقول. نختار كل تصميم بعناية، ونهتم بالتفاصيل الصغيرة من اللون إلى الغرزة الأخيرة.</p>
+          <p>زوفا متجر إلكتروني للحقائب النسائية في المملكة، وُلد من فكرة بسيطة: أن تحصل كل امرأة على حقيبة أنيقة بجودة ممتازة وسعر مناسب. نختار كل حقيبة بعناية من موردين نثق بهم، وحقائبنا غير تابعة لأي ماركة أو دار أزياء عالمية.</p>
           <a class="btn btn-primary" href="#shop">تصفّحي المجموعة${ic('arrow')}</a></div>
-        <figure><img src="img/ui/atelier.webp" alt="ثلاث حقائب من زوفا معروضة داخل أقواس وردية" width="1200" height="1000"></figure>
+        <figure><img src="img/ui/atelier.webp" alt="ثلاث حقائب من تشكيلة زوفا معروضة داخل أقواس وردية" width="1200" height="1000"></figure>
       </section>
     </div>
     <section class="sec band"><div class="wrap">
       <div class="sec-h center"><div><h2>ما نؤمن به</h2><p>أربعة مبادئ ترافق كل قطعة</p></div></div>
       <div class="values">
         <div class="value"><i>${ic('shield')}</i><h3>الجودة أولاً</h3><p>نفحص كل قطعة قبل شحنها ونختار خامات تحافظ على شكلها مع الاستعمال.</p></div>
-        <div class="value"><i>${ic('tag')}</i><h3>فخامة بسعر معقول</h3><p>تصاميم راقية بأسعار تناسب يومكِ، بلا مبالغة وبلا تنازل عن الإتقان.</p></div>
-        <div class="value"><i>${ic('sparkle')}</i><h3>الرقة في التفاصيل</h3><p>من لون البطانة إلى قفل Ż الذهبي ولؤلؤة الشعار، كل تفصيلة مقصودة.</p></div>
+        <div class="value"><i>${ic('tag')}</i><h3>جودة بسعر مناسب</h3><p>تصاميم عصرية بأسعار تناسب يومكِ، بلا مبالغة وبلا تنازل عن الجودة.</p></div>
+        <div class="value"><i>${ic('sparkle')}</i><h3>الرقة في التفاصيل</h3><p>من القفل الذهبي إلى الغرزة الأخيرة، نختار القطع التي تهتم بالتفاصيل.</p></div>
         <div class="value"><i>${ic('gift')}</i><h3>تجربة تُسعدكِ</h3><p>تغليف أنيق، توصيل سريع، وخدمة تسمعكِ قبل الشراء وبعده.</p></div>
       </div>
     </div></section>
     <section class="sec"><div class="wrap"><div class="facts">
-      <div><b class="num">${D.products.length}</b><span>تصميماً في المجموعة الأولى</span></div>
-      <div><b class="num">${colorsUsed}</b><span>لوناً مستوحى من هويتنا</span></div>
+      <div><b class="num">${D.products.length}</b><span>تصميمات في تشكيلتنا الحالية</span></div>
+      <div><b class="num">${colorsUsed}</b><span>ألوان مختارة</span></div>
       <div><b class="num">${C.returnsDays}</b><span>يوماً للاسترجاع السهل</span></div>
       <div><b class="num">13</b><span>منطقة في المملكة نوصل إليها</span></div>
     </div></div></section>
-    <section class="sec band"><div class="wrap">
-      ${secHead('من علبتنا إلى يديكِ', 'هكذا يصلكِ كل طلب من زوفا')}
-      <div class="pack">
-        <figure><img src="img/ui/pack-mailer-box.webp" alt="علبة زوفا الوردية" loading="lazy"><figcaption>علبة زوفا</figcaption></figure>
-        <figure><img src="img/ui/pack-tissue-stickers.webp" alt="ورق التغليف والأختام" loading="lazy"><figcaption>ورق تغليف وختم</figcaption></figure>
-        <figure><img src="img/ui/pack-thankyou-cards.webp" alt="بطاقة الشكر" loading="lazy"><figcaption>بطاقة شكر</figcaption></figure>
-        <figure style="grid-column:2 / 4"><img src="img/ui/pack-dust-bags.webp" alt="أكياس الحفظ القطنية" loading="lazy" style="aspect-ratio:21/9"><figcaption>كيس حفظ قطني</figcaption></figure>
-      </div>
-    </div></section>
-    <div class="wrap" style="padding-top:64px"><div class="cta-dark"><h2>جاهزة لاختيار حقيبتكِ؟</h2><p>كل قطعة في زوفا صُممت لترافقكِ طويلاً، من يومكِ العادي إلى مناسباتكِ الخاصة.</p><a class="btn btn-light" href="#shop">ابدئي التسوق${ic('arrow')}</a></div></div>`;
+    <div class="wrap" style="padding-top:64px"><div class="cta-dark"><h2>جاهزة لاختيار حقيبتكِ؟</h2><p>كل الحقائب الآن بـ ${money(OFFER.now)} بدلاً من ${money(OFFER.before)}، من يومكِ العادي إلى مناسباتكِ الخاصة.</p><a class="btn btn-light" href="#shop">ابدئي التسوق${ic('arrow')}</a></div></div>`;
     return { html, title: 'من نحن', nav: 'about' };
   }
 
@@ -431,7 +426,8 @@
           <span class="cat">${esc(CAT[p.cat])} · ${esc(p.typeAr)}</span>
           <h1>${esc(p.ar)}<span class="la" lang="en">${esc(p.en)} ${esc(p.typeEn)}</span></h1>
           ${priceHTML(p, p.old ? `<span class="chip-off">وفّري ${money(p.old - p.price)}</span>` : '')}
-          <div class="vat">السعر شامل ضريبة القيمة المضافة</div>
+          <div class="vat">السعر شامل ضريبة القيمة المضافة · خصم ${OFFER.percent}% لفترة محدودة</div>
+          <div class="honest">${ic('info')}<span>جودة ممتازة بسعر مناسب. حقائبنا غير تابعة لأي ماركة أو دار أزياء عالمية.</span></div>
           <div class="split-note">${ic('split')}<span>أو قسّميها على 4 دفعات بقيمة <b class="num">${money(split)}</b> بدون فوائد مع تابي أو تمارا</span></div>
           <p class="desc">${esc(p.short)}</p>
           <div><span class="opt-label">اللون: <span id="cname">${esc(colorOf(c.key).ar)}</span></span>
@@ -454,11 +450,10 @@
             <div class="tabpane" role="tabpanel" id="tp1" hidden style="margin-top:16px"><ul class="bullets">
               <li>توصيل عادي خلال ${esc(C.shipping.standard.days)}، ومجاني للطلبات فوق ${C.freeShippingOver} ${C.currency}.</li>
               <li>توصيل سريع خلال ${esc(C.shipping.express.days)} برسوم ${money(C.shipping.express.price)}.</li>
-              <li>استرجاع أو استبدال خلال ${C.returnsDays} يوماً من الاستلام إذا كانت القطعة بحالتها الأصلية.</li></ul>
-              <p style="margin:14px 0 6px;font-weight:500;color:var(--ink)">ماذا يصلكِ مع الطلب</p>
-              <div class="inbox"><figure><img src="img/ui/pack-mailer-box.webp" alt="" loading="lazy"><figcaption>علبة زوفا</figcaption></figure><figure><img src="img/ui/pack-dust-bags.webp" alt="" loading="lazy"><figcaption>كيس حفظ قطني</figcaption></figure><figure><img src="img/ui/pack-thankyou-cards.webp" alt="" loading="lazy"><figcaption>بطاقة شكر</figcaption></figure></div></div>
+              <li>استرجاع أو استبدال خلال ${C.returnsDays} يوماً من الاستلام إذا كانت القطعة بحالتها الأصلية.</li>
+              <li>نغلّف كل طلب بعناية قبل شحنه.</li></ul></div>
             <div class="tabpane" role="tabpanel" id="tp2" hidden style="margin-top:16px"><ul class="bullets">
-              <li>احفظيها داخل كيس الحفظ القطني بعيداً عن الشمس المباشرة والرطوبة.</li>
+              <li>احفظيها في كيس قماشي بعيداً عن الشمس المباشرة والرطوبة.</li>
               <li>املئيها بورق ناعم عند التخزين لتحافظ على شكلها.</li>
               <li>امسحي البقع بقطعة قماش ناعمة ومبللة قليلاً، وتجنبي المنظفات القوية.</li>
               <li>أبعدي العطور ومستحضرات التجميل عن القطع المعدنية الذهبية.</li></ul></div>
@@ -716,6 +711,8 @@
   /* ---------- info pages */
   const DOCS = {
     faq: ['الأسئلة الشائعة', 'FAQ', () => `<div class="faq">${[
+      ['هل حقائبكم من ماركات عالمية؟', 'لا. حقائب زوفا تصاميم عصرية مختارة بعناية بجودة ممتازة، وهي غير تابعة لأي ماركة أو دار أزياء عالمية، ولذلك أسعارها مناسبة.'],
+      ['كم سعر الحقائب الآن؟', `جميع الحقائب حالياً بـ ${money(OFFER.now)} بدلاً من ${money(OFFER.before)}، بخصم ${OFFER.percent}% لفترة محدودة.`],
       ['متى يصل طلبي؟', `التوصيل العادي خلال ${C.shipping.standard.days} داخل المملكة، والتوصيل السريع خلال ${C.shipping.express.days}.`],
       ['هل الشحن مجاني؟', `نعم، الشحن العادي مجاني للطلبات فوق ${C.freeShippingOver} ${C.currency}، وأقل من ذلك برسوم ${money(C.shipping.standard.price)}.`],
       ['ما طرق الدفع المتاحة؟', `مدى، البطاقات الائتمانية، Apple Pay، التقسيط مع تابي وتمارا، والدفع عند الاستلام برسوم ${money(C.codFee)}.`],
@@ -723,16 +720,16 @@
       ['كيف أسترجع أو أستبدل قطعة؟', `يمكنكِ طلب الاسترجاع أو الاستبدال خلال ${C.returnsDays} يوماً من الاستلام إذا كانت القطعة بحالتها الأصلية مع التغليف والبطاقات.`],
       ['هل يمكن إرسال الطلب كهدية؟', 'نعم، اختاري «أرسليها كهدية» عند إتمام الطلب، وسنضيف بطاقة إهداء بخط اليد دون فاتورة داخل الطلب.'],
       ['هل الألوان في الصور مطابقة للواقع؟', 'نحرص على أن تكون الصور قريبة من اللون الحقيقي، وقد يختلف اللون قليلاً حسب إعدادات شاشتكِ.'],
-      ['كيف أعتني بحقيبتي؟', 'احفظيها في كيس الحفظ القطني بعيداً عن الشمس والرطوبة، وتجدين نصائح أكثر في صفحة العناية بالحقيبة.']
+      ['كيف أعتني بحقيبتي؟', 'احفظيها في كيس قماشي بعيداً عن الشمس والرطوبة، وتجدين نصائح أكثر في صفحة العناية بالحقيبة.']
     ].map(([q, a], i) => `<details${i ? '' : ' open'}><summary>${q}${ic('plus')}</summary><p>${a}</p></details>`).join('')}</div>`],
     shipping: ['الشحن والتوصيل', 'Shipping', () => `<div class="doc"><p>نوصل طلباتكِ إلى جميع مناطق المملكة عبر شركات شحن موثوقة، ويصلكِ رقم تتبع برسالة نصية فور شحن الطلب.</p>
       <h2>خيارات التوصيل</h2><ul><li><b>${C.shipping.standard.label}:</b> ${C.shipping.standard.days} — ${money(C.shipping.standard.price)}، ومجاني للطلبات فوق ${C.freeShippingOver} ${C.currency}.</li><li><b>${C.shipping.express.label}:</b> ${C.shipping.express.days} — ${money(C.shipping.express.price)}.</li></ul>
-      <h2>التجهيز</h2><p>نجهّز الطلبات خلال يوم عمل واحد، وتُغلّف كل قطعة داخل كيس حفظ قطني وعلبة زوفا الوردية.</p></div>`],
+      <h2>التجهيز</h2><p>نجهّز الطلبات خلال يوم عمل واحد، ونغلّف كل قطعة بعناية قبل شحنها.</p></div>`],
     returns: ['الاسترجاع والاستبدال', 'Returns', () => `<div class="doc"><p>نريدكِ أن تحبي حقيبتكِ. إن لم تكن كما توقعتِ فيمكنكِ استرجاعها أو استبدالها خلال ${C.returnsDays} يوماً من الاستلام.</p>
-      <h2>الشروط</h2><ul><li>أن تكون القطعة غير مستخدمة وبحالتها الأصلية.</li><li>أن تُعاد مع كيس الحفظ والبطاقات والتغليف الأصلي.</li><li>لا يشمل الاسترجاع القطع المخفّضة بنسبة تزيد على 30% ما لم يكن بها عيب مصنعي.</li></ul>
+      <h2>الشروط</h2><ul><li>أن تكون القطعة غير مستخدمة وبحالتها الأصلية.</li><li>أن تُعاد مع تغليفها الأصلي والبطاقات المرفقة بها.</li><li>لا يشمل الاسترجاع القطع المخفّضة بنسبة تزيد على 30% ما لم يكن بها عيب مصنعي.</li></ul>
       <h2>طريقة الاسترجاع</h2><p>تواصلي معنا برقم الطلب، وسنرتب استلام القطعة من عنوانكِ، ويُعاد المبلغ إلى وسيلة الدفع نفسها خلال 5–10 أيام عمل من فحصها.</p></div>`],
     care: ['العناية بالحقيبة', 'Care Guide', () => `<div class="doc"><p>حقيبتكِ من زوفا صُنعت لترافقكِ طويلاً، وهذه نصائح بسيطة تحافظ على جمالها:</p>
-      <ul><li>احفظيها داخل كيس الحفظ القطني بعيداً عن الشمس المباشرة والحرارة والرطوبة.</li><li>املئيها بورق ناعم عند التخزين لتحافظ على شكلها، ولا تعلّقيها من المقبض لفترات طويلة.</li><li>امسحي البقع فوراً بقطعة قماش ناعمة ومبللة قليلاً، وجففيها في الظل.</li><li>أبعدي العطور ومستحضرات التجميل والمعقمات عن الجلد والقطع المعدنية الذهبية.</li><li>لحقائب الساتان: تجنبي الماء تماماً، واستخدمي فرشاة ناعمة لإزالة الغبار.</li></ul></div>`],
+      <ul><li>احفظيها في كيس قماشي بعيداً عن الشمس المباشرة والحرارة والرطوبة.</li><li>املئيها بورق ناعم عند التخزين لتحافظ على شكلها، ولا تعلّقيها من المقبض لفترات طويلة.</li><li>امسحي البقع فوراً بقطعة قماش ناعمة ومبللة قليلاً، وجففيها في الظل.</li><li>أبعدي العطور ومستحضرات التجميل والمعقمات عن السطح والقطع المعدنية الذهبية.</li><li>لحقائب الشامواه: تجنبي الماء، واستخدمي فرشاة ناعمة لإزالة الغبار.</li></ul></div>`],
     privacy: ['سياسة الخصوصية', 'Privacy', () => `<div class="doc"><p>نحترم خصوصيتكِ ونستخدم بياناتكِ فقط لإتمام طلباتكِ وتحسين تجربتكِ.</p><h2>البيانات التي نجمعها</h2><ul><li>الاسم ورقم الجوال والعنوان لإتمام التوصيل.</li><li>البريد الإلكتروني إن أضفتِه لإرسال تأكيد الطلب.</li></ul><h2>حماية البيانات</h2><p>لا نبيع بياناتكِ لأي طرف، ولا نشاركها إلا مع شركات الشحن والدفع بالقدر اللازم لتنفيذ الطلب.</p><p class="ph-note">نص مبدئي للعرض — يُستبدل بسياسة المتجر المعتمدة قبل الإطلاق.</p></div>`],
     terms: ['الشروط والأحكام', 'Terms', () => `<div class="doc"><p>باستخدامكِ متجر زوفا فإنكِ توافقين على الشروط التالية:</p><ul><li>الأسعار بالريال السعودي وشاملة ضريبة القيمة المضافة.</li><li>يُؤكَّد الطلب بعد إتمام الدفع أو اختيار الدفع عند الاستلام.</li><li>تخضع العروض لتوفر الكمية وفترة العرض المعلنة.</li><li>تُطبق سياسة الاسترجاع والاستبدال الموضحة في صفحتها.</li></ul><p class="ph-note">نص مبدئي للعرض — يُستبدل بالشروط المعتمدة قبل الإطلاق.</p></div>`],
     contact: ['تواصلي معنا', 'Contact', () => `<div class="contact">
@@ -865,13 +862,15 @@
     const w = norm(q).split(/\s+/).filter(Boolean);
     const list = D.products.filter(p => { const hay = norm([p.ar, p.en, p.typeAr, p.typeEn, CAT[p.cat], ...p.colors.map(c => colorOf(c.key).ar + ' ' + colorOf(c.key).en)].join(' ')); return w.every(x => hay.includes(x)); }).slice(0, 7);
     box.hidden = false;
-    box.innerHTML = list.length ? list.map(p => `<a href="#p-${p.id}" data-act="close"><img src="${p.colors[0].img}" alt=""><span class="n"><b>${esc(p.ar)} <span class="la" lang="en" style="color:var(--mauve);font-weight:500">${esc(p.en)}</span></b><span>${esc(CAT[p.cat])} · ${p.colors.length} ألوان</span></span><span class="pr num">${money(p.price)}</span>${ic('chevron')}</a>`).join('')
+    box.innerHTML = list.length ? list.map(p => `<a href="#p-${p.id}" data-act="close"><img src="${p.colors[0].img}" alt=""><span class="n"><b>${esc(p.ar)} <span class="la" lang="en" style="color:var(--mauve);font-weight:500">${esc(p.en)}</span></b><span>${esc(CAT[p.cat])} · ${p.colors.length === 1 ? 'لون واحد' : (p.colors.length === 2 ? 'لونان' : p.colors.length + ' ألوان')}</span></span><span class="pr num">${money(p.price)}</span>${ic('chevron')}</a>`).join('')
       + `<a href="#shop" data-act="close" data-q="${esc(q)}" style="justify-content:center;color:var(--mauve-700);font-weight:500">عرض كل النتائج في المتجر</a>`
-      : `<div class="none">لا توجد نتائج لـ «${esc(q)}». جرّبي: كروس، سهرة، محفظة.</div>`;
+      : `<div class="none">لا توجد نتائج لـ «${esc(q)}». جرّبي: دلو، هلالية، عنابي.</div>`;
   }
 
   /* ------------------------------------------------------------ shell */
   function shell() {
+    const tb = $('#topbar');
+    if (tb && OFFER.percent) tb.innerHTML = `<div class="wrap"><span>${ic('tag')}<b>خصم ${OFFER.percent}% على جميع الحقائب</b><span class="tb-p">كانت <s class="num">${money(OFFER.before)}</s> والآن <b class="num">${money(OFFER.now)}</b></span></span><a href="#deals">تسوّقي العروض${ic('arrow')}</a></div>`;
     const navs = [['shop', 'المتجر'], ['collections', 'المجموعات'], ['deals', 'العروض'], ['about', 'من نحن']];
     $('#hdr').innerHTML = `<div class="wrap hdr-in">
       <a class="brand" href="#" aria-label="زوفا — الرئيسية">${window.ZOVA_LOGO}</a>
@@ -884,7 +883,7 @@
         <button type="button" class="ibtn menu-btn" data-act="menu" aria-label="القائمة">${ic('menu')}</button>
       </div></div>`;
     const flinks = {
-      'تسوّقي': [['وصل حديثاً', '#shop-new'], ['الأكثر طلباً', '#shop-best'], ['المجموعات', '#collections'], ['العروض', '#deals']],
+      'تسوّقي': [['حقائب اليد', '#shop-handbags'], ['حقائب الكتف', '#shop-shoulder'], ['المجموعات', '#collections'], ['العروض', '#deals']],
       'المساعدة': [['تواصلي معنا', '#contact'], ['الشحن والتوصيل', '#shipping'], ['الاسترجاع والاستبدال', '#returns'], ['الأسئلة الشائعة', '#faq']],
       'زوفا': [['من نحن', '#about'], ['العناية بالحقيبة', '#care'], ['سياسة الخصوصية', '#privacy'], ['الشروط والأحكام', '#terms']]
     };
@@ -892,7 +891,7 @@
       <div class="news"><div><h3>كوني أول من يعرف</h3><p>عروض خاصة وأحدث القطع تصلكِ أولاً.</p></div>
         <form id="newsf" novalidate><label class="sr" for="nemail">بريدكِ الإلكتروني</label><input id="nemail" type="email" placeholder="بريدكِ الإلكتروني" dir="ltr" autocomplete="email"><button class="btn btn-primary" type="submit">اشتركي${ic('arrow')}</button></form></div>
       <div class="fcols">
-        <div><a class="brand" href="#" aria-label="زوفا">${window.ZOVA_LOGO_LIGHT}</a><p class="about">حقائب نسائية بفخامة ناعمة وسعر معقول، مختارة بعناية لتُرافق يومكِ ومناسباتكِ.</p><div class="motto" lang="en">Softly Yours</div></div>
+        <div><a class="brand" href="#" aria-label="زوفا">${window.ZOVA_LOGO_LIGHT}</a><p class="about">حقائب نسائية بجودة ممتازة وسعر مناسب، مختارة بعناية لتُرافق يومكِ ومناسباتكِ.</p><p class="about honest-f">حقائبنا غير تابعة لأي ماركة أو دار أزياء عالمية.</p><div class="motto" lang="en">Softly Yours</div></div>
         ${Object.entries(flinks).map(([h, l]) => `<div><h4>${h}</h4><ul>${l.map(([t, u]) => `<li><a href="${u}">${t}</a></li>`).join('')}</ul></div>`).join('')}
       </div>
       <div class="fbot"><span>© ${new Date().getFullYear()} زوفا. جميع الحقوق محفوظة · الأسعار شاملة ضريبة القيمة المضافة</span>
@@ -902,7 +901,7 @@
     $('#menu .mnav').innerHTML = `${[['', 'الرئيسية'], ...navs, ['wishlist', 'المفضلة'], ['account', 'حسابي']].map(([k, v]) => `<a href="#${k}" data-nav="${k || 'home'}" data-act="close">${v}${ic('chevron')}</a>`).join('')}
       <h4>تسوّقي حسب النوع</h4>${D.categories.map(c => `<a href="#shop-${c.id}" data-act="close">${c.ar}${ic('chevron')}</a>`).join('')}
       <h4>المساعدة</h4><a href="#contact" data-act="close">تواصلي معنا${ic('chevron')}</a><a href="#faq" data-act="close">الأسئلة الشائعة${ic('chevron')}</a>`;
-    $('#chips').innerHTML = ['حقيبة سهرة', 'كروس', 'محفظة', 'لؤلؤي', 'وردي', 'جلد محبب'].map(t => `<button type="button" data-chip="${t}">${t}</button>`).join('');
+    $('#chips').innerHTML = ['دلو', 'هلالية', 'عنابي', 'أسود', 'كتف', 'بقفل'].map(t => `<button type="button" data-chip="${t}">${t}</button>`).join('');
     $('#chips').insertAdjacentHTML('afterend', `<p class="slabel">تصفّحي حسب النوع</p><div class="chips">${D.categories.map(c => `<a class="pbtn" href="#shop-${c.id}" data-act="close"><span style="width:20px;height:20px;display:inline-grid">${catIc(CAT_ICON[c.id])}</span>${c.ar}</a>`).join('')}</div>`);
     updateCounts();
   }
@@ -927,7 +926,7 @@
     if (!out) { out = notFound(); route.name = '404'; }
     const app = $('#app');
     app.innerHTML = `<div class="glow" aria-hidden="true"></div>${out.html}`;
-    document.title = out.title ? `${out.title} | زوفا ZOVA` : 'زوفا ZOVA | حقائب نسائية بفخامة ناعمة';
+    document.title = out.title ? `${out.title} | زوفا ZOVA` : 'زوفا ZOVA | حقائب نسائية بجودة ممتازة وسعر مناسب';
     $$('[data-nav]').forEach(a => a.classList.toggle('on', a.dataset.nav === out.nav));
     window.scrollTo(0, 0);
     if (out.mount) out.mount();

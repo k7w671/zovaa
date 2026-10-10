@@ -30,7 +30,7 @@ window.ZOVA_CONFIG = {
 
   // Seasonal sale: the countdown hides itself after this date.
   saleEndsAt: '2026-10-31T23:59:59+03:00',
-  saleTitle: 'تخفيضات الخريف',
+  saleTitle: 'عرض زوفا',
 
   // Discount codes (demo). type: 'percent' | 'amount'
   coupons: {
